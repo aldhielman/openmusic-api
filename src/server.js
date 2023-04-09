@@ -3,11 +3,15 @@ require("dotenv").config();
 const Hapi = require("@hapi/hapi");
 const albums = require("./api/albums");
 const AlbumsValidator = require("./validator/albums");
-const AlbumService = require("./services/postgres/AlbumsService");
+const songs = require("./api/songs");
+const SongsValidator = require("./validator/songs");
+const AlbumsService = require("./services/postgres/AlbumsService");
+const SongsService = require("./services/postgres/SongsService");
 const ClientError = require("./exceptions/ClientError");
 
 const init = async () => {
-  const albumsService = new AlbumService();
+  const albumsService = new AlbumsService();
+  const songsService = new SongsService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -19,13 +23,22 @@ const init = async () => {
     },
   });
 
-  await server.register({
-    plugin: albums,
-    options: {
-      service: albumsService,
-      validator: AlbumsValidator,
+  await server.register([
+    {
+      plugin: albums,
+      options: {
+        service: albumsService,
+        validator: AlbumsValidator,
+      },
     },
-  });
+    {
+      plugin: songs,
+      options: {
+        service: songsService,
+        validator: SongsValidator,
+      },
+    },
+  ]);
 
   server.ext("onPreResponse", (request, h) => {
     // mendapatkan konteks response dari request
@@ -47,7 +60,7 @@ const init = async () => {
       // penanganan server error sesuai kebutuhan
       const newResponse = h.response({
         status: "error",
-        message: "terjadi kegagalan pada server kami",
+        message: response.message,
       });
       newResponse.code(500);
       return newResponse;
