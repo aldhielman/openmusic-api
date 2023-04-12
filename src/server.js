@@ -1,24 +1,34 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const Hapi = require('@hapi/hapi');
-const albums = require('./api/albums');
-const AlbumsValidator = require('./validator/albums');
-const songs = require('./api/songs');
-const SongsValidator = require('./validator/songs');
-const AlbumsService = require('./services/postgres/AlbumsService');
-const SongsService = require('./services/postgres/SongsService');
-const ClientError = require('./exceptions/ClientError');
+const Hapi = require("@hapi/hapi");
+const ClientError = require("./exceptions/ClientError");
+
+// albums
+const albums = require("./api/albums");
+const AlbumsValidator = require("./validator/albums");
+const AlbumsService = require("./services/postgres/AlbumsService");
+
+// songs
+const songs = require("./api/songs");
+const SongsValidator = require("./validator/songs");
+const SongsService = require("./services/postgres/SongsService");
+
+// users
+const users = require("./api/users");
+const UsersValidator = require("./validator/users");
+const UsersService = require("./services/postgres/UsersService");
 
 const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
+  const usersService = new UsersService();
 
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
     routes: {
       cors: {
-        origin: ['*'],
+        origin: ["*"],
       },
     },
   });
@@ -38,16 +48,23 @@ const init = async () => {
         validator: SongsValidator,
       },
     },
+    {
+      plugin: users,
+      options: {
+        service: usersService,
+        validator: UsersValidator,
+      },
+    },
   ]);
 
-  server.ext('onPreResponse', (request, h) => {
+  server.ext("onPreResponse", (request, h) => {
     // mendapatkan konteks response dari request
     const { response } = request;
     if (response instanceof Error) {
       // penanganan client error secara internal.
       if (response instanceof ClientError) {
         const newResponse = h.response({
-          status: 'fail',
+          status: "fail",
           message: response.message,
         });
         newResponse.code(response.statusCode);
@@ -59,7 +76,7 @@ const init = async () => {
       }
       // penanganan server error sesuai kebutuhan
       const newResponse = h.response({
-        status: 'error',
+        status: "error",
         message: response.message,
       });
       newResponse.code(500);
