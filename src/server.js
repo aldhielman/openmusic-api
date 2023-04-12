@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const Hapi = require("@hapi/hapi");
 const ClientError = require("./exceptions/ClientError");
+const Jwt = require("@hapi/jwt");
+const TokenManager = require("./tokenize/TokenManager");
 
 // albums
 const albums = require("./api/albums");
@@ -18,6 +20,12 @@ const users = require("./api/users");
 const UsersValidator = require("./validator/users");
 const UsersService = require("./services/postgres/UsersService");
 
+// authentications
+const authentications = require("./api/authentications");
+const AuthenticationsService = require("./services/postgres/AuthenticationsService");
+const AuthenticationsValidator = require("./validator/authentications");
+const authenticationsService = new AuthenticationsService();
+
 const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
@@ -31,6 +39,30 @@ const init = async () => {
         origin: ["*"],
       },
     },
+  });
+
+  // registrasi plugin eksternal
+  await server.register([
+    {
+      plugin: Jwt,
+    },
+  ]);
+
+  // mendefinisikan strategy autentikasi jwt
+  server.auth.strategy("notesapp_jwt", "jwt", {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
   });
 
   await server.register([
@@ -55,6 +87,15 @@ const init = async () => {
         validator: UsersValidator,
       },
     },
+    {
+      plugin: authentications,
+      options: {
+        authenticationsService,
+        usersService,
+        tokenManager: TokenManager,
+        validator: AuthenticationsValidator,
+      },
+    },
   ]);
 
   server.ext("onPreResponse", (request, h) => {
@@ -77,9 +118,10 @@ const init = async () => {
       // penanganan server error sesuai kebutuhan
       const newResponse = h.response({
         status: "error",
-        message: response.message,
+        message: "terjadi kegagalan pada server kami",
       });
       newResponse.code(500);
+      console.log(response);
       return newResponse;
     }
     // jika bukan error, lanjutkan dengan response sebelumnya (tanpa terintervensi)
