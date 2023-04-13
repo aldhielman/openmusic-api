@@ -1,10 +1,20 @@
 const autoBind = require("auto-bind");
 
+const ACTION_ADD = "add";
+const ACTION_REMOVE = "delete";
+
 class PlaylistHandler {
-  constructor(playlistsService, playlistSongsService, songsService, validator) {
+  constructor(
+    playlistsService,
+    playlistSongsService,
+    songsService,
+    playlistActivitiesService,
+    validator
+  ) {
     this._playlistsService = playlistsService;
     this._playlistSongsService = playlistSongsService;
     this._songsService = songsService;
+    this._playlistActivitiesService = playlistActivitiesService;
     this._validator = validator;
 
     autoBind(this);
@@ -63,6 +73,12 @@ class PlaylistHandler {
     await this._playlistsService.verifyPlaylistAccess(playlist.id, owner);
     await this._playlistSongsService.verifyDuplicate(playlist.id, song.id);
     await this._playlistSongsService.addPlaylistSong(playlist.id, song.id);
+    await this._playlistActivitiesService.addActivity(
+      playlist.id,
+      song.id,
+      owner,
+      ACTION_ADD
+    );
 
     const response = h.response({
       status: "success",
@@ -98,10 +114,32 @@ class PlaylistHandler {
 
     await this._playlistsService.verifyPlaylistAccess(playlistId, owner);
     await this._playlistSongsService.deletePlaylistSongById(playlistId, songId);
+    await this._playlistActivitiesService.addActivity(
+      playlistId,
+      songId,
+      owner,
+      ACTION_REMOVE
+    );
 
     const response = h.response({
       status: "success",
       message: "Lagu berhasil dihapus dari Playlist",
+    });
+    return response;
+  }
+
+  async getPlaylistActivitiesHandler(request, h) {
+    const { id: playlistId } = request.params;
+    const { id: owner } = request.auth.credentials;
+
+    await this._playlistsService.verifyPlaylistAccess(playlistId, owner);
+    const data = await this._playlistActivitiesService.getPlaylistActivities(
+      playlistId
+    );
+
+    const response = h.response({
+      status: "success",
+      data,
     });
     return response;
   }
