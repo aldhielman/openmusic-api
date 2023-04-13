@@ -34,7 +34,7 @@ exports.up = (pgm) => {
     },
   });
 
-  pgm.addConstraint("songs", "fk_songs_album_id", {
+  pgm.addConstraint("songs", "fk_songs_album-id", {
     foreignKeys: {
       columns: "album_id", // Correct column name
       references: "albums(id)", // Reference the 'id' column in the 'albums' table
@@ -45,6 +45,6 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-  // pgm.dropConstraint("songs", "fk_songs_albumId");
+  pgm.dropConstraint("songs", "fk_songs_album-id");
   pgm.dropTable("songs");
 };
