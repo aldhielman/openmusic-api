@@ -1,65 +1,112 @@
-const autoBind = require('auto-bind')
+const autoBind = require("auto-bind");
 
 class AlbumHandler {
-  constructor (service, validator) {
-    this.service = service
-    this.validator = validator
+  constructor(service, albumLikesService, validator) {
+    this.service = service;
+    this.albumLikesService = albumLikesService;
+    this.validator = validator;
 
-    autoBind(this)
+    autoBind(this);
   }
 
-  async postAlbumHandler (request, h) {
-    this.validator.validateAlbumPayload(request.payload)
-    const { name, year } = request.payload
+  async postAlbumHandler(request, h) {
+    this.validator.validateAlbumPayload(request.payload);
+    const { name, year } = request.payload;
 
-    const albumId = await this.service.addAlbum({ name, year })
+    const albumId = await this.service.addAlbum({ name, year });
 
     const response = h.response({
-      status: 'success',
-      message: 'Album berhasil ditambahkan',
+      status: "success",
+      message: "Album berhasil ditambahkan",
       data: {
-        albumId
-      }
-    })
-    response.code(201)
-    return response
+        albumId,
+      },
+    });
+    response.code(201);
+    return response;
   }
 
-  async getAlbumByIdHandler (request) {
-    const { id } = request.params
+  async getAlbumByIdHandler(request) {
+    const { id } = request.params;
 
-    const album = await this.service.getAlbumById(id)
+    const album = await this.service.getAlbumById(id);
 
     return {
-      status: 'success',
+      status: "success",
       data: {
-        album
-      }
-    }
+        album,
+      },
+    };
   }
 
-  async putAlbumByIdHandler (request) {
-    this.validator.validateAlbumPayload(request.payload)
-    const { id } = request.params
+  async putAlbumByIdHandler(request, h) {
+    this.validator.validateAlbumPayload(request.payload);
+    const { id } = request.params;
 
-    await this.service.editAlbumById(id, request.payload)
+    await this.service.editAlbumById(id, request.payload);
 
-    return {
-      status: 'success',
-      message: 'Album berhasil diperbarui'
-    }
+    const response = h.response({
+      status: "success",
+      message: "Album berhasil diperbarui",
+    });
+
+    response.code(201);
+    return response;
   }
 
-  async deleteAlbumByIdHandler (request) {
-    const { id } = request.params
+  async deleteAlbumByIdHandler(request) {
+    const { id } = request.params;
 
-    await this.service.deleteAlbumById(id)
+    await this.service.deleteAlbumById(id);
 
     return {
-      status: 'success',
-      message: 'Album berhasil dihapus'
-    }
+      status: "success",
+      message: "Album berhasil dihapus",
+    };
+  }
+
+  async postAlbumLikeByIdHandler(request, h) {
+    const { id: albumId } = request.params;
+    const { id: userId } = request.auth.credentials;
+
+    await this.service.getAlbumById(albumId);
+    await this.albumLikesService.verifyDuplicate(albumId, userId);
+
+    await this.albumLikesService.addLike(albumId, userId);
+
+    const response = h.response({
+      status: "success",
+      message: "Like berhasil ditambahkan",
+    });
+
+    response.code(201);
+    return response;
+  }
+
+  async deleteAlbumLikeByIdHandler(request) {
+    const { id: albumId } = request.params;
+    const { id: userId } = request.auth.credentials;
+
+    await this.albumLikesService.deleteLikeById(albumId, userId);
+
+    return {
+      status: "success",
+      message: "Like berhasil dihapus",
+    };
+  }
+
+  async getAlbumLikesByIdHandler(request) {
+    const { id: albumId } = request.params;
+
+    const likes = await this.albumLikesService.getLikes(albumId);
+
+    return {
+      status: "success",
+      data: {
+        likes,
+      },
+    };
   }
 }
 
-module.exports = AlbumHandler
+module.exports = AlbumHandler;

@@ -9,7 +9,9 @@ const TokenManager = require("./tokenize/TokenManager");
 const albums = require("./api/albums");
 const AlbumsValidator = require("./validator/albums");
 const AlbumsService = require("./services/postgres/AlbumsService");
+const AlbumLikesService = require("./services/postgres/AlbumLikesService");
 const albumsService = new AlbumsService();
+const albumLikesService = new AlbumLikesService();
 
 // songs
 const songs = require("./api/songs");
@@ -98,6 +100,7 @@ const init = async () => {
       plugin: albums,
       options: {
         service: albumsService,
+        albumLikesService,
         validator: AlbumsValidator,
       },
     },
