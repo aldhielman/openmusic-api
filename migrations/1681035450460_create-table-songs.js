@@ -1,50 +1,50 @@
 /* eslint-disable camelcase */
 
 exports.up = (pgm) => {
-  pgm.createTable("songs", {
+  pgm.createTable('songs', {
     id: {
-      type: "VARCHAR(50)",
+      type: 'VARCHAR(50)',
       primaryKey: true,
     },
     title: {
-      type: "TEXT",
+      type: 'TEXT',
       notNull: true,
     },
     year: {
-      type: "INTEGER",
+      type: 'INTEGER',
       notNull: true,
     },
     genre: {
-      type: "TEXT",
+      type: 'TEXT',
       notNull: true,
     },
     performer: {
-      type: "TEXT",
+      type: 'TEXT',
       notNull: true,
     },
     duration: {
-      type: "INTEGER",
+      type: 'INTEGER',
       default: null, // Set default value to null
       allowNull: true,
     },
-    album_id: {
-      type: "VARCHAR(50)",
+    albumId: {
+      type: 'VARCHAR(50)',
       default: null, // Set default value to null
       notNull: false,
     },
   });
 
-  pgm.addConstraint("songs", "fk_songs_album-id", {
+  pgm.addConstraint('songs', 'fk_songs_albumId', {
     foreignKeys: {
-      columns: "album_id", // Correct column name
-      references: "albums(id)", // Reference the 'id' column in the 'albums' table
-      onDelete: "CASCADE", // Optional: specify the onDelete action
-      onUpdate: "CASCADE", // Optional: specify the onUpdate action
+      columns: 'albumId', // Correct column name
+      references: 'albums(id)', // Reference the 'id' column in the 'albums' table
+      onDelete: 'CASCADE', // Optional: specify the onDelete action
+      onUpdate: 'CASCADE', // Optional: specify the onUpdate action
     },
   });
 };
 
 exports.down = (pgm) => {
-  pgm.dropConstraint("songs", "fk_songs_album-id");
-  pgm.dropTable("songs");
+  pgm.dropConstraint('songs', 'fk_songs_album-id');
+  pgm.dropTable('songs');
 };

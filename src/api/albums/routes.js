@@ -1,43 +1,43 @@
 const routes = (handler) => [
   {
-    method: "POST",
-    path: "/albums",
+    method: 'POST',
+    path: '/albums',
     handler: handler.postAlbumHandler,
   },
   {
-    method: "GET",
-    path: "/albums/{id}",
+    method: 'GET',
+    path: '/albums/{id}',
     handler: handler.getAlbumByIdHandler,
   },
   {
-    method: "PUT",
-    path: "/albums/{id}",
+    method: 'PUT',
+    path: '/albums/{id}',
     handler: handler.putAlbumByIdHandler,
   },
   {
-    method: "DELETE",
-    path: "/albums/{id}",
+    method: 'DELETE',
+    path: '/albums/{id}',
     handler: handler.deleteAlbumByIdHandler,
   },
   {
-    method: "POST",
-    path: "/albums/{id}/likes",
+    method: 'POST',
+    path: '/albums/{id}/likes',
     handler: handler.postAlbumLikeByIdHandler,
     options: {
-      auth: "openmusic_jwt",
+      auth: 'openmusic_jwt',
     },
   },
   {
-    method: "DELETE",
-    path: "/albums/{id}/likes",
+    method: 'DELETE',
+    path: '/albums/{id}/likes',
     handler: handler.deleteAlbumLikeByIdHandler,
     options: {
-      auth: "openmusic_jwt",
+      auth: 'openmusic_jwt',
     },
   },
   {
-    method: "GET",
-    path: "/albums/{id}/likes",
+    method: 'GET',
+    path: '/albums/{id}/likes',
     handler: handler.getAlbumLikesByIdHandler,
   },
 ];

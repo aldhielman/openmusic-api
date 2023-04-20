@@ -1,43 +1,43 @@
-const { Pool } = require('pg')
-const autoBind = require('auto-bind')
-const InvariantError = require('../../exceptions/InvariantError')
+const { Pool } = require('pg');
+const autoBind = require('auto-bind');
+const InvariantError = require('../../exceptions/InvariantError');
 
 class AuthenticationsService {
-  constructor () {
-    this._pool = new Pool()
-    autoBind(this)
+  constructor() {
+    this.pool = new Pool();
+    autoBind(this);
   }
 
-  async addRefreshToken (token) {
+  async addRefreshToken(token) {
     const query = {
       text: 'INSERT INTO authentications VALUES($1)',
-      values: [token]
-    }
+      values: [token],
+    };
 
-    await this._pool.query(query)
+    await this.pool.query(query);
   }
 
-  async verifyRefreshToken (token) {
+  async verifyRefreshToken(token) {
     const query = {
       text: 'SELECT token FROM authentications WHERE token = $1',
-      values: [token]
-    }
+      values: [token],
+    };
 
-    const result = await this._pool.query(query)
+    const result = await this.pool.query(query);
 
     if (!result.rows.length) {
-      throw new InvariantError('Refresh token tidak valid')
+      throw new InvariantError('Refresh token tidak valid');
     }
   }
 
-  async deleteRefreshToken (token) {
+  async deleteRefreshToken(token) {
     const query = {
       text: 'DELETE FROM authentications WHERE token = $1',
-      values: [token]
-    }
+      values: [token],
+    };
 
-    await this._pool.query(query)
+    await this.pool.query(query);
   }
 }
 
-module.exports = AuthenticationsService
+module.exports = AuthenticationsService;

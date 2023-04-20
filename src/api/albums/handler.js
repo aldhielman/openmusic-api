@@ -1,4 +1,4 @@
-const autoBind = require("auto-bind");
+const autoBind = require('auto-bind');
 
 class AlbumHandler {
   constructor(service, albumLikesService, validator) {
@@ -16,8 +16,8 @@ class AlbumHandler {
     const albumId = await this.service.addAlbum({ name, year });
 
     const response = h.response({
-      status: "success",
-      message: "Album berhasil ditambahkan",
+      status: 'success',
+      message: 'Album berhasil ditambahkan',
       data: {
         albumId,
       },
@@ -32,7 +32,7 @@ class AlbumHandler {
     const album = await this.service.getAlbumById(id);
 
     return {
-      status: "success",
+      status: 'success',
       data: {
         album,
       },
@@ -46,8 +46,8 @@ class AlbumHandler {
     await this.service.editAlbumById(id, request.payload);
 
     const response = h.response({
-      status: "success",
-      message: "Album berhasil diperbarui",
+      status: 'success',
+      message: 'Album berhasil diperbarui',
     });
 
     return response;
@@ -59,8 +59,8 @@ class AlbumHandler {
     await this.service.deleteAlbumById(id);
 
     return {
-      status: "success",
-      message: "Album berhasil dihapus",
+      status: 'success',
+      message: 'Album berhasil dihapus',
     };
   }
 
@@ -74,8 +74,8 @@ class AlbumHandler {
     await this.albumLikesService.addLike(albumId, userId);
 
     const response = h.response({
-      status: "success",
-      message: "Like berhasil ditambahkan",
+      status: 'success',
+      message: 'Like berhasil ditambahkan',
     });
 
     response.code(201);
@@ -89,8 +89,8 @@ class AlbumHandler {
     await this.albumLikesService.deleteLikeById(albumId, userId);
 
     return {
-      status: "success",
-      message: "Like berhasil dihapus",
+      status: 'success',
+      message: 'Like berhasil dihapus',
     };
   }
 
@@ -98,14 +98,14 @@ class AlbumHandler {
     const { id: albumId } = request.params;
     const likes = await this.albumLikesService.getLikes(albumId);
     const response = h.response({
-      status: "success",
+      status: 'success',
       data: {
         likes: likes.count,
       },
     });
 
     if (likes.cache) {
-      response.header("X-Data-Source", "cache");
+      response.header('X-Data-Source', 'cache');
     }
 
     return response;

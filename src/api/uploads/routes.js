@@ -1,13 +1,13 @@
 const routes = (handler) => [
   {
-    method: "POST",
-    path: "/albums/{id}/covers",
+    method: 'POST',
+    path: '/albums/{id}/covers',
     handler: handler.postUploadCoverHandler,
     options: {
       payload: {
-        allow: "multipart/form-data",
+        allow: 'multipart/form-data',
         multipart: true,
-        output: "stream",
+        output: 'stream',
         maxBytes: 512000,
       },
     },

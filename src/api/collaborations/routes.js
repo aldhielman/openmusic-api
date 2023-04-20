@@ -4,17 +4,17 @@ const routes = (handler) => [
     path: '/collaborations',
     handler: handler.postCollaborationHandler,
     options: {
-      auth: 'openmusic_jwt'
-    }
+      auth: 'openmusic_jwt',
+    },
   },
   {
     method: 'DELETE',
     path: '/collaborations',
     handler: handler.deleteCollaborationHandler,
     options: {
-      auth: 'openmusic_jwt'
-    }
-  }
-]
+      auth: 'openmusic_jwt',
+    },
+  },
+];
 
-module.exports = routes
+module.exports = routes;

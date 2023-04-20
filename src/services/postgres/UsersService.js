@@ -1,97 +1,97 @@
-const { Pool } = require('pg')
-const bcrypt = require('bcrypt')
-const InvariantError = require('../../exceptions/InvariantError')
-const { nanoid } = require('nanoid')
-const NotFoundError = require('../../exceptions/NotFoundError')
-const AuthenticationError = require('../../exceptions/AuthenticationError')
-const autoBind = require('auto-bind')
+const { Pool } = require('pg');
+const bcrypt = require('bcrypt');
+const { nanoid } = require('nanoid');
+const autoBind = require('auto-bind');
+const InvariantError = require('../../exceptions/InvariantError');
+const NotFoundError = require('../../exceptions/NotFoundError');
+const AuthenticationError = require('../../exceptions/AuthenticationError');
 
 class UsersService {
-  constructor () {
-    this._pool = new Pool()
-    autoBind(this)
+  constructor() {
+    this.pool = new Pool();
+    autoBind(this);
   }
 
-  async addUser ({ username, password, fullname }) {
-    await this.verifyNewUsername(username)
+  async addUser({ username, password, fullname }) {
+    await this.verifyNewUsername(username);
 
-    const id = `user-${nanoid(16)}`
+    const id = `user-${nanoid(16)}`;
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const query = {
       text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id',
-      values: [id, username, hashedPassword, fullname]
-    }
+      values: [id, username, hashedPassword, fullname],
+    };
 
-    const result = await this._pool.query(query)
+    const result = await this.pool.query(query);
 
     if (!result.rows.length) {
-      throw new InvariantError('User gagal ditambahkan')
+      throw new InvariantError('User gagal ditambahkan');
     }
-    return result.rows[0].id
+    return result.rows[0].id;
   }
 
-  async verifyNewUsername (username) {
+  async verifyNewUsername(username) {
     const query = {
       text: 'SELECT username FROM users WHERE username = $1',
-      values: [username]
-    }
+      values: [username],
+    };
 
-    const result = await this._pool.query(query)
+    const result = await this.pool.query(query);
 
     if (result.rows.length > 0) {
       throw new InvariantError(
-        'Gagal menambahkan user. Username sudah digunakan.'
-      )
+        'Gagal menambahkan user. Username sudah digunakan.',
+      );
     }
   }
 
-  async getUsersByUsername (username) {
+  async getUsersByUsername(username) {
     const query = {
       text: 'SELECT id, username, fullname FROM users WHERE username LIKE $1',
-      values: [`%${username}%`]
-    }
+      values: [`%${username}%`],
+    };
 
-    const result = await this._pool.query(query)
-    return result.rows
+    const result = await this.pool.query(query);
+    return result.rows;
   }
 
-  async getUserById (userId) {
+  async getUserById(userId) {
     const query = {
       text: 'SELECT id, username, fullname FROM users WHERE id = $1',
-      values: [userId]
-    }
+      values: [userId],
+    };
 
-    const result = await this._pool.query(query)
+    const result = await this.pool.query(query);
 
     if (!result.rows.length) {
-      throw new NotFoundError('User tidak ditemukan')
+      throw new NotFoundError('User tidak ditemukan');
     }
 
-    return result.rows[0]
+    return result.rows[0];
   }
 
-  async verifyUserCredential (username, password) {
+  async verifyUserCredential(username, password) {
     const query = {
       text: 'SELECT id, password FROM users WHERE username = $1',
-      values: [username]
-    }
-    const result = await this._pool.query(query)
+      values: [username],
+    };
+    const result = await this.pool.query(query);
 
     if (!result.rows.length) {
-      throw new AuthenticationError('Kredensial yang Anda berikan salah')
+      throw new AuthenticationError('Kredensial yang Anda berikan salah');
     }
 
-    const { id, password: hashedPassword } = result.rows[0]
+    const { id, password: hashedPassword } = result.rows[0];
 
-    const match = await bcrypt.compare(password, hashedPassword)
+    const match = await bcrypt.compare(password, hashedPassword);
 
     if (!match) {
-      throw new AuthenticationError('Kredensial yang Anda berikan salah')
+      throw new AuthenticationError('Kredensial yang Anda berikan salah');
     }
-    return id
+    return id;
   }
 }
 
-module.exports = UsersService
+module.exports = UsersService;

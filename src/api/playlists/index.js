@@ -1,5 +1,5 @@
-const PlaylistsHandler = require('./handler')
-const routes = require('./routes')
+const PlaylistsHandler = require('./handler');
+const routes = require('./routes');
 
 module.exports = {
   name: 'playlists',
@@ -11,16 +11,16 @@ module.exports = {
       playlistSongsService,
       songsService,
       playlistActivitiesService,
-      validator
-    }
+      validator,
+    },
   ) => {
     const playlistsHandler = new PlaylistsHandler(
       playlistsService,
       playlistSongsService,
       songsService,
       playlistActivitiesService,
-      validator
-    )
-    server.route(routes(playlistsHandler))
-  }
-}
+      validator,
+    );
+    server.route(routes(playlistsHandler));
+  },
+};
