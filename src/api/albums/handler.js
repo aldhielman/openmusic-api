@@ -50,7 +50,6 @@ class AlbumHandler {
       message: "Album berhasil diperbarui",
     });
 
-    response.code(201);
     return response;
   }
 
@@ -95,17 +94,21 @@ class AlbumHandler {
     };
   }
 
-  async getAlbumLikesByIdHandler(request) {
+  async getAlbumLikesByIdHandler(request, h) {
     const { id: albumId } = request.params;
-
     const likes = await this.albumLikesService.getLikes(albumId);
-
-    return {
+    const response = h.response({
       status: "success",
       data: {
-        likes,
+        likes: likes.count,
       },
-    };
+    });
+
+    if (likes.cache) {
+      response.header("X-Data-Source", "cache");
+    }
+
+    return response;
   }
 }
 

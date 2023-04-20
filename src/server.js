@@ -5,13 +5,17 @@ const ClientError = require("./exceptions/ClientError");
 const Jwt = require("@hapi/jwt");
 const TokenManager = require("./tokenize/TokenManager");
 
+// cache
+const CacheService = require("./services/redis/CacheService");
+const cacheService = new CacheService();
+
 // albums
 const albums = require("./api/albums");
 const AlbumsValidator = require("./validator/albums");
 const AlbumsService = require("./services/postgres/AlbumsService");
 const AlbumLikesService = require("./services/postgres/AlbumLikesService");
 const albumsService = new AlbumsService();
-const albumLikesService = new AlbumLikesService();
+const albumLikesService = new AlbumLikesService(cacheService);
 
 // songs
 const songs = require("./api/songs");
